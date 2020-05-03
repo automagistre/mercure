@@ -8,16 +8,21 @@ clone:
 
 steps:
     -   name: deploy
-        image: docker:19.03.5
+        image: docker/compose:alpine-1.25.5
         volumes:
+            -   name: env
+                path: /drone/src/.env
             -   name: docker.sock
                 path: /var/run/docker.sock
         commands:
-            - docker stack deploy --prune --with-registry-auth --compose-file docker-compose.yml mercure
-        when:
-            branch: [ master ]
+            - docker-compose --file docker-compose.yml config | docker stack deploy --prune --with-registry-auth --compose-file - mercure
+#        when:
+#            branch: [ master ]
 
 volumes:
     -   name: docker.sock
         host:
             path: /var/run/docker.sock
+    -   name: env
+        host:
+            path: /etc/automagistre/env
